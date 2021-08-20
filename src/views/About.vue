@@ -95,6 +95,9 @@ export default {
         console.log(error);
       });
   },
+  mounted(){
+    
+  },
   watch: {
     // comments:{
     //   handler(){

@@ -5,8 +5,17 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    userId: null
   },
   mutations: {
+    setUserId(state, userId){
+      state.userId = userId;
+    }
+  },
+  getters:{
+    getUserId(state){
+      return state.userId;
+    }
   },
   actions: {
   },

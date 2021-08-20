@@ -78,6 +78,7 @@ export default {
         )
         .then((Response) => {
           this.$Spin.show();
+          this.$store.commit("setUserId", Response.data.data);
           if (Response.data.data != null) {
             vm.$router.push({
               name: "Tie",

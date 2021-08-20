@@ -68,6 +68,7 @@ export default {
       });
     },
     createTie: function () {
+      let userId = this.$store.getters.getUserId;
       this.$Modal.confirm({
         render: (h) => {
           return h("Input", {
@@ -79,6 +80,11 @@ export default {
             on: {
               input: (val) => {
                 this.value = val;
+                this.axios.post("/tie/create", {
+                  userId: userId,
+                  createTime: new Date().getTime(),
+                  content: this.value
+                }, {})
               },
             },
           });

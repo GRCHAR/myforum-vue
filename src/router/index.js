@@ -4,6 +4,9 @@ import Home from '../views/Home.vue'
 import Tie from '../views/Tie.vue'
 import Register from '../views/Register'
 import Login from '../views/Login'
+import Live from '../views/Live.vue'
+import WebRTC from "@/components/WebRTC";
+import remote from "@/components/remote";
 
 Vue.use(VueRouter)
 
@@ -35,6 +38,21 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/live',
+    name: 'Live',
+    component: Live
+  },
+  {
+    path: '/webrtc',
+    name: 'WEBRTC',
+    component: WebRTC
+  },
+  {
+    path: '/remote',
+    name: 'remote',
+    component: remote
   }
 ]
 
