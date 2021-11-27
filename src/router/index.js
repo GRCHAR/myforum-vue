@@ -7,6 +7,18 @@ import Login from '../views/Login'
 import Live from '../views/Live.vue'
 import WebRTC from "@/components/WebRTC";
 import remote from "@/components/remote";
+import iframe from "@/views/iframe"
+import createTie from "@/views/CreateTie"
+import Video from "@/views/Video"
+import VideoUpload from "@/views/VideoUpload";
+import VideoList from "@/views/VideoList";
+import CreateLive from "@/views/CreateLive";
+import LiveList from "@/views/LiveList";
+
+
+import ViewUI from 'view-design';
+Vue.use(ViewUI);
+
 
 Vue.use(VueRouter)
 
@@ -53,6 +65,41 @@ const routes = [
     path: '/remote',
     name: 'remote',
     component: remote
+  },
+  {
+    path: '/iframe',
+    name: 'iframe',
+    component: iframe
+  },
+  {
+    path: '/createTie',
+    name: 'CreateTie',
+    component: createTie
+  },
+  {
+    path: '/video',
+    name: 'Video',
+    component: Video
+  },
+  {
+    path: '/upload',
+    name: 'VideoUpload',
+    component: VideoUpload
+  },
+  {
+    path: '/videoList',
+    name: 'VideoList',
+    component: VideoList
+  },
+  {
+    path: '/createLive',
+    name: 'CreateLive',
+    component: CreateLive
+  },
+  {
+    path: '/liveList',
+    name: 'LiveList',
+    component: LiveList
   }
 ]
 
@@ -61,5 +108,21 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+ViewUI.LoadingBar.config({
+  // color: '#5cb85c',
+  // failedColor: '#f0ad4e',
+  // height: 3
+})  
+
+router.beforeEach((to, from, next) => {
+  ViewUI.LoadingBar.start();
+  next();
+});
+
+router.afterEach(route => {
+  ViewUI.LoadingBar.finish();
+});
+
 
 export default router

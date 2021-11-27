@@ -32,9 +32,9 @@
                   <Card class="cardContent" :bordered="false">
                     <div class="content">{{ comments[item].content }}</div>
                   </Card>
-                  <Card class="cardContentComment">
-                    <div class="content">test cs comment</div>
-                  </Card>
+<!--                  <Card class="cardContentComment">-->
+<!--                    <div class="content">test cs comment</div>-->
+<!--                  </Card>-->
                 </Col>
                 <Col span="2" offset="2">
                   <Card class="carUser" :bordered="false">
@@ -81,22 +81,28 @@ export default {
     };
   },
   created() {
-    var vm = this;
-    this.tieId = this.$route.query.TieId;
 
-    this.axios
-      .get("/tie/getcomments", {
-        params: { tieId: vm.tieId, pageIndex:this.pageIndex, pageSize:this.pageSize },
-      })
-      .then((response) => {
-        vm.comments = response.data.data;
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
   },
   mounted(){
-    
+    var vm = this;
+    // this.tieId = this.$route.query.TieId;
+    console.log(this.$route.query);
+    console.log(this.$route.query.TieId);
+    this.tieId = this.$route.query.TieId;
+    console.log(this.tieId);
+    this.axios
+        .post("/forum/tie/getCommentsByMongo", {
+          tieId: this.$route.query.TieId
+        }, { headers: { "Content-Type": "application/json" } })
+        .then((response) => {
+
+          console.log(vm.tieId);
+          console.log(response.data.data);
+          vm.comments = response.data.data;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
   },
   watch: {
     // comments:{
@@ -128,7 +134,7 @@ export default {
     getUser: function (userId) {
       var vm = this;
       this.axios
-        .get("/user/getUser", {
+        .get("/forum/user/getUser", {
           params: {
             userId: userId,
           },
@@ -144,7 +150,7 @@ export default {
       let vm = this;
       this.axios
         .post(
-          "/tie/createComment",
+          "/forum/tie/createCommentByMongo",
           {
             userId: this.getCookie("userId"),
             tieId: this.tieId,
@@ -156,8 +162,18 @@ export default {
         )
         .then(function (response) {
           vm.$nextTick(() => {
-            vm.comments = response.data.data;
-            console.log(vm.comments);
+            vm.axios
+                .post("/tie/getCommentsByMongo", {
+                  tieId: vm.tieId
+                }, { headers: { "Content-Type": "application/json" } })
+                .then((response) => {
+
+                  vm.comments = response.data.data;
+                  vm.commitcomment = "";
+                })
+                .catch(function (error) {
+                  console.log(error);
+                });
           })
           // this.comments = response.data.data;
         })

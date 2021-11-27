@@ -69,7 +69,7 @@ export default {
       let vm = this;
       this.axios
         .post(
-          "/user/register",
+          "/forum/user/register",
           {
             name: vm.formInline.user,
             password: vm.formInline.password,

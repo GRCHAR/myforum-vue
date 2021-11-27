@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<input type="button" value="打开窗口" onclick="normal_function('openMyWindow')"></input>
+
+</body>
+
+
+<script>
+
+    
+    var returnValue;
+
+    function normal_function(functionName) {
+        if(functionName == "openMyWindow"){
+            var func_ = eval("openMyWindow");
+            func_();
+        }
+
+    }
+    function waitWindow( _winOpen) {
+        return new Promise((resolve => {
+            var timer=setInterval(function(){
+                if(_winOpen.closed===true){
+                    if(_winOpen.childReturnValue!=null){
+
+                        //业务代码，_winOpen.returnValue就是从子页面获取的返回值
+                        returnValue = _winOpen.childReturnValue;
+                        console.log(returnValue);
+                        resolve(returnValue);
+                        clearInterval(timer);
+
+
+                    }
+
+                }
+
+            });
+        }))
+
+    }
+
+
+    async function openMyWindow(){
+        var _openWindow = window.open('WEBRTC.html','','width=200,height=100')
+        await waitWindow(_openWindow);
+        console.log(returnValue);
+    }
+
+    function callBackcallBack(value){
+        console.log("callBack")
+        console.log(value);
+    }
+</script>
+</html>

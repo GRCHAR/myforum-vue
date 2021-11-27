@@ -2,7 +2,7 @@
   <div name="tie">
     <Layout>
       <Header>
-        <Button @click="createTie">创建帖子</Button>
+        <Button @click="toCreateTie">创建帖子</Button>
       </Header>
       <Content>
         <List item-layout="vertical">
@@ -49,7 +49,7 @@ export default {
   created() {
     let vm = this;
     this.axios
-      .get("/tie/getTies", {})
+      .get("/forum/tie/getTies", {})
       .then(function (rep) {
         vm.Tie = rep.data.data;
       })
@@ -80,7 +80,7 @@ export default {
             on: {
               input: (val) => {
                 this.value = val;
-                this.axios.post("/tie/create", {
+                this.axios.post("/forum/tie/create", {
                   userId: userId,
                   createTime: new Date().getTime(),
                   content: this.value
@@ -91,6 +91,11 @@ export default {
         },
       });
     },
+    toCreateTie: function (){
+      this.$router.push({
+        name: "CreateTie"
+      });
+    }
   },
 };
 </script>

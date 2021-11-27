@@ -69,7 +69,7 @@ export default {
       let vm = this;
       this.axios
         .post(
-          "/user/login",
+          "/forum/user/login",
           {
             name: vm.formInline.user,
             password: vm.formInline.password,
@@ -88,13 +88,14 @@ export default {
             });
             setTimeout(() => {
               this.$Spin.hide();
-            }, 3000);
-            this.$Message.success("登录成功!");
+              this.$Message.success("登录成功!");
+            }, 1000);
           } else {
             setTimeout(() => {
               this.$Spin.hide();
-            }, 3000);
-            this.$Message.error("登录失败!");
+              this.$Message.error("登录失败!");
+            }, 1000);
+
           }
         });
     },

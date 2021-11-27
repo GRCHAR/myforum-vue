@@ -5,10 +5,16 @@
     <title>Title</title>
 </head>
 <body>
-<video id="webcam" WIDTH="1280" HEIGHT="720"></video>
+<input type="button" value="打开窗口" onclick="_returnValue()"></input>
 </body>
 </html>
 
 <script>
 
+    var childReturnValue = null;
+
+    function _returnValue(){
+        console.log("returnValue");
+        childReturnValue = "t";
+    }
 </script>

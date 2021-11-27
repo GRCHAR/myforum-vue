@@ -125,7 +125,7 @@ export default {
           console.log("json.users" + json.users);
           json.users.split(",").forEach(user => {
             if(user !== ""){
-              let RTConnect = new webkitRTCPeerConnection(vm.ice);
+              let RTConnect = new RTCPeerConnection(vm.ice);
               RTConnect.onicecandidate = function (event){
                 console.log("onicecandidate", event);
                 if (event.candidate !== null) {
@@ -137,41 +137,33 @@ export default {
                   }));
                 }
               };
-              RTConnect.onicecandidateerror = function (event){
-                console.log("onicecandidateerror:", event);
-              }
+              // RTConnect.onicecandidateerror = function (event){
+              //   console.log("onicecandidateerror:", event);
+              // }
               RTConnect.ontrack = function(event){
                 console.log("A stream (id: '" + event.stream.id + "') has been added to this connection.");
                 console.log(event.streams[0].getTracks());
                 vm.playStream(event.streams[0]);
               };
+              RTConnect.onaddtrack = function (event) {
+                console.log("addtrack event:", event);
+              }
               RTConnect.createOffer().then(function(offer){
+                console.log("MY OFFER! {}" , offer);
                 console.log("RTConnect before setlocal:" + JSON.stringify(RTConnect));
-                navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true
-              }).then(mediaStream => {
-                let result = RTConnect.setLocalDescription(offer);
-                console.log("RTConnect", RTConnect);
-                return result;
-              })
-              RTConnect.setLocalDescription(offer);
-                
-              }).then(function (){
+                RTConnect.setLocalDescription(offer);
                 console.log("RTConnect send:", RTConnect);
+                console.log("RTConnect.localDescription:{}", RTConnect.localDescription)
                 vm.ws.send(JSON.stringify({
                   "event": "_offer",
                   "toUserId": user,
                   "data": {
-                    "sdp": RTConnect.localDescription
+                    "sdp": offer
                   }
                 }));
                 console.log("before set:" + JSON.stringify(RTConnect));
                 vm.RTCConnectList.set(user, RTConnect);
                 console.log("affter set:", JSON.stringify(vm.RTCConnectList.values()[0]));
-                vm.rtc
-              }).catch(function(reason) {
-                console.log(reason);
               });
               // RTConnect.createOffer(function (desc){
               //   console.log("createOffer desc:", desc);
@@ -189,7 +181,7 @@ export default {
         console.log("loginUser:vm.socketUserId " + json.loginUser+":"+vm.socketUserId);
         if(json.code === '1' && json.loginUser !== vm.socketUserId){
           console.log("json.code === 1");
-          let RTConnect = new webkitRTCPeerConnection(vm.ice);
+          let RTConnect = new RTCPeerConnection(vm.ice);
           RTConnect.onicecandidate = function (event){
             console.log("onicecandidate");
             if (event.candidate !== null) {
@@ -216,9 +208,14 @@ export default {
       //如果是一个ICE的候选，则将其加入到PeerConnection中，否则设定对方的session描述为传递过来的描述
       if( json.event === "_ice_candidate" ){
         console.log("_ice_candidate");
+
         vm.RTCConnectList.forEach((value, key) => {
           if(key === json.fromUserId){
-            value.addIceCandidate(new RTCIceCandidate(json.data.candidate));
+            if(value.canTrickleIceCandidates){
+              console.log("RTCConnet:{}", value);
+              console.log("json.data.candidate:{}",json.data.candidate);
+              value.addIceCandidate(new RTCIceCandidate(json.data.candidate));
+            }
           }
         })
         // vm.RTCConnect.addIceCandidate(new RTCIceCandidate(json.data.candidate));
@@ -235,16 +232,11 @@ export default {
               console.log("this is offer foreach fromUserId!!!!!!");
 
               value.setRemoteDescription(new RTCSessionDescription(json.data.sdp));
+
               console.log("setRemoteDescription");
               value.createAnswer().then(function (answer){
                 console.log("setLocalDescription");
-                navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true
-              }).then(mediaStream => {
-                RTConnect.setLocalDescription(answer);
-              })
-                RTConnect.setLocalDescription(answer);
+                value.setLocalDescription(answer);
                 vm.ws.send(JSON.stringify({ // 发送answer
                   "event": "_answer",
                   "toUserId": key,
@@ -252,36 +244,37 @@ export default {
                     "sdp": answer
                   }
                 }));
-              }).then(function (){
-                console.log("canTrickleIceCandidates");
-                    if (value.canTrickleIceCandidates) {
-                      console.log("canTrickleIceCandidates true");
-                      return value.localDescription;
-                    }
-                console.log("canTrickleIceCandidates false");
-                    return new Promise(function (r){
-                      console.log("addEventListener");
-                      value.addEventListener('icegatheringstatechange',function (e){
-                        console("iceGatheringState complete");
-                        if (e.target.iceGatheringState === 'complete') {
-                          r(value.localDescription);
-                        }
-                      });
-                      console.log("addEventListener after");
-                    });
-                  }).catch(e => function (){
-                console.log("error", e);
-              });
-              value.addEventListener('icecandidate', e => {
-                if (value.canTrickleIceCandidates) {
-                  vm.ws.send(JSON.stringify({
-                    "event": "_ice_candidate",
-                    "data": {
-                      "candidate": e.candidate
-                    }
-                  })); // signaling message
-                }
-              });
+              })
+              // then(function (){
+              //   console.log("canTrickleIceCandidates");
+              //       if (value.canTrickleIceCandidates) {
+              //         console.log("canTrickleIceCandidates true");
+              //         return value.localDescription;
+              //       }
+              //   console.log("canTrickleIceCandidates false");
+              //       return new Promise(function (r){
+              //         console.log("addEventListener");
+              //         value.addEventListener('icegatheringstatechange',function (e){
+              //           console("iceGatheringState complete");
+              //           if (e.target.iceGatheringState === 'complete') {
+              //             r(value.localDescription);
+              //           }
+              //         });
+              //         console.log("addEventListener after");
+              //       });
+              //     }).catch(e => function (){
+              //   console.log("error", e);
+              // });
+              // value.addEventListener('icecandidate', e => {
+              //   if (value.canTrickleIceCandidates) {
+              //     vm.ws.send(JSON.stringify({
+              //       "event": "_ice_candidate",
+              //       "data": {
+              //         "candidate": e.candidate
+              //       }
+              //     })); // signaling message
+              //   }
+              // });
               // {
               //   console.log("value:", value);
               //   value.createAnswer()
@@ -308,7 +301,7 @@ export default {
           // });
         }})}
         if (json.event === "_answer") {
-          console.log()
+          console.log("this is answer")
           vm.RTCConnectList.forEach((value, key) => {
             if (key === json.fromUserId) {
               value.setRemoteDescription(new RTCSessionDescription(json.data.sdp));
@@ -321,12 +314,12 @@ export default {
                 video: true,
                 audio: true
               }).then(mediaStream =>{
-                
+
                 mediaStream.getTracks().forEach(track => {
-                  value.setLocalDescription(null);
-                  console.log(track);
+
+                  console.log("get remote track:{}", track);
                   value.addTrack(track);
-                  console.log(vm.RTCConnectList);
+                  console.log("get media{}", vm.RTCConnectList);
                 });
               })
             }

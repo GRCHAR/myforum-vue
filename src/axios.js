@@ -1,7 +1,9 @@
 import Axios from 'axios'
+import env from './config/env'
 
 const myaxios = Axios.create({
-    baseURL: 'http://192.168.56.176:8071/forum'
+    baseURL: env.target
 })
+
 
 export default myaxios
