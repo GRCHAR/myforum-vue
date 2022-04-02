@@ -2,9 +2,14 @@
 
 
 
+
+
 const env = {
-    // target : "http://192.168.56.118:8071",
-    target : "http://localhost:8071"
+    // target : "http://47.93.125.10",
+
+    // target: "http://124.70.94.103"
+
+    target : "http://127.0.0.1:8070"
 }
 
 export default env;

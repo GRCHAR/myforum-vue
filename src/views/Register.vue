@@ -67,22 +67,28 @@ export default {
   methods: {
     handleSubmit() {
       let vm = this;
+      let data = new FormData();
+      data.append("name", vm.formInline.user)
+      data.append("password", vm.formInline.password)
       this.axios
         .post(
-          "/forum/user/register",
-          {
-            name: vm.formInline.user,
-            password: vm.formInline.password,
-          },
-          { headers: { "Content-Type": "application/json" } }
+          "/videoserver/user/register",data,
+          { headers: { "Content-Type": "multipart/form-data" } }
         )
         .then((Response) => {
+          this.$Spin.show();
+          this.$store.commit("setUserId", Response.data.id);
+          this.$store.commit("setToken", Response.data.token)
+          localStorage.setItem("u_id", Response.data.id)
+          localStorage.setItem("u_tk", Response.data.token)
           vm.$router.push({
-            name: "Tie",
+            name: "VideoList",
             params: {
-              userId: Response.data.data,
+              userId: Response.data.userId,
             },
           });
+          this.$Spin.hide();
+          this.$Message.success("注册成功!");
         });
     },
   },

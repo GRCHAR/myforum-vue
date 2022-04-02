@@ -1,8 +1,8 @@
 <template>
   <div name="tie">
     <Layout>
-      <Header>
-        <Button @click="toCreateTie">创建帖子</Button>
+      <Header style="background-color: darkgray">
+        <Button type="primary" @click="toCreateTie">创建帖子</Button>
       </Header>
       <Content>
         <List item-layout="vertical">
@@ -49,7 +49,7 @@ export default {
   created() {
     let vm = this;
     this.axios
-      .get("/forum/tie/getTies", {})
+      .get("/tie/getTies", {})
       .then(function (rep) {
         vm.Tie = rep.data.data;
       })
@@ -69,6 +69,7 @@ export default {
     },
     createTie: function () {
       let userId = this.$store.getters.getUserId;
+      let token = this.$store.getters.
       this.$Modal.confirm({
         render: (h) => {
           return h("Input", {
@@ -80,8 +81,9 @@ export default {
             on: {
               input: (val) => {
                 this.value = val;
-                this.axios.post("/forum/tie/create", {
+                this.axios.post("/tie/create", {
                   userId: userId,
+                  token: token,
                   createTime: new Date().getTime(),
                   content: this.value
                 }, {})

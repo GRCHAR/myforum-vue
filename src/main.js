@@ -20,6 +20,13 @@ new Vue({
 }).$mount('#app')
 
 
+Vue.directive('title', {
+  inserted: function (el, binding) {
+    document.title = el.dataset.title
+  }
+})
+
+
 router.beforeEach((to, from, next) => {
   ViewUI.LoadingBar.start();
   next();
@@ -29,3 +36,5 @@ router.afterEach(route => {
   route;
   ViewUI.LoadingBar.finish();
 });
+
+

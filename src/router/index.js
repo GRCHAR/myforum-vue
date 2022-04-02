@@ -17,6 +17,7 @@ import LiveList from "@/views/LiveList";
 
 
 import ViewUI from 'view-design';
+import edit from "@/components/edit";
 Vue.use(ViewUI);
 
 
@@ -25,8 +26,8 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'VideoList',
+    component: VideoList
   },
   {
     path: '/about/',
@@ -100,6 +101,11 @@ const routes = [
     path: '/liveList',
     name: 'LiveList',
     component: LiveList
+  },
+  {
+    path: '/edit',
+    name: 'edit',
+    component: edit
   }
 ]
 
@@ -116,6 +122,7 @@ ViewUI.LoadingBar.config({
 })  
 
 router.beforeEach((to, from, next) => {
+  window.document.title = "GrchaR视频网"
   ViewUI.LoadingBar.start();
   next();
 });

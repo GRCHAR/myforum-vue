@@ -1,10 +1,9 @@
 <template>
   <div class="mybody">
     <Form
-      ref="formInline"
-      :model="formItem"
-      :label-width="100"
-      style="
+        ref="formInline"
+        :label-width="100"
+        style="
         width: 50%;
         height: 50%;
         position: relative;
@@ -19,15 +18,15 @@
       </FormItem>
       <FormItem prop="password" label="密码:">
         <Input
-          type="password"
-          v-model="formInline.password"
-          placeholder="Password"
+            type="password"
+            v-model="formInline.password"
+            placeholder="Password"
         >
           <Icon type="ios-lock-outline" slot="prepend"></Icon>
         </Input>
       </FormItem>
       <FormItem>
-        <Button type="primary" @click="handleSubmit()">Signin</Button>
+        <Button type="primary" @click="handleSubmit()">登录</Button>
       </FormItem>
     </Form>
   </div>
@@ -64,40 +63,45 @@ export default {
       },
     };
   },
+
   methods: {
     handleSubmit() {
       let vm = this;
+      let data = new FormData()
+      data.append("name", vm.formInline.user)
+      data.append("password", vm.formInline.password)
       this.axios
-        .post(
-          "/forum/user/login",
-          {
-            name: vm.formInline.user,
-            password: vm.formInline.password,
-          },
-          { headers: { "Content-Type": "application/json" } }
-        )
-        .then((Response) => {
-          this.$Spin.show();
-          this.$store.commit("setUserId", Response.data.data);
-          if (Response.data.data != null) {
-            vm.$router.push({
-              name: "Tie",
-              params: {
-                userId: Response.data.data,
-              },
-            });
-            setTimeout(() => {
-              this.$Spin.hide();
-              this.$Message.success("登录成功!");
-            }, 1000);
-          } else {
-            setTimeout(() => {
-              this.$Spin.hide();
-              this.$Message.error("登录失败!");
-            }, 1000);
+          .post(
+              "/videoserver/user/login",
+              data,
+              {headers: {"Content-Type": "multipart/form-data"}}
+          )
+          .then((Response) => {
+            this.$Spin.show();
+            this.$store.commit("setUserId", Response.data.id);
+            this.$store.commit("setToken", Response.data.token)
+            localStorage.setItem("u_id", Response.data.id)
+            localStorage.setItem("u_tk", Response.data.token)
+            if (Response.data.id != null) {
+              vm.$router.push({
+                name: "VideoList",
+                params: {
+                  userId: Response.data.id,
+                  token: Response.data.token
+                },
+              });
+              setTimeout(() => {
+                this.$Spin.hide();
+                this.$Message.success("登录成功!");
+              }, 1000);
+            } else {
+              setTimeout(() => {
+                this.$Spin.hide();
+                this.$Message.error("登录失败!");
+              }, 1000);
 
-          }
-        });
+            }
+          });
     },
   },
 };
@@ -109,6 +113,7 @@ mybody {
   margin: 0;
   padding: 0;
 }
+
 .demo-spin-icon-load {
   animation: ani-demo-spin 1s linear infinite;
 }

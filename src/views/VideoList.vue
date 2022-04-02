@@ -6,12 +6,17 @@
       </Row>
     </div>
     <br>
-    <div v-for="rowCount in 4">
+    <div v-for="rowCount in 4" :key=rowCount>
       <Row>
-        <Col class="video_row" span="5" offset="2" v-for="(item, key) in videoList.slice(((rowCount - 1) * 3), (rowCount)*3)">
-          <Card v-if="item != null" replace :to="{ name: 'Video', params: { videoId: item.id}}" append>
-            <img :src="getImage(item.id)" width="120px" height="90px" />
-            <p>{{item.title}}</p>
+        <Col class="video_row" span="5" offset="1" v-for="(item, key) in videoList.slice(((rowCount - 1) * 4), (rowCount)*4)" :key=key>
+          <Card v-if="item != null" replace :to="{ name: 'Video', query: { videoId: item.Id}}" append>
+            <img :src="getImage(item.Id)" width="90%" height="70%" />
+            <div class="title">{{item.Title}}</div>
+            <div class="up">
+              <p>up:{{item.UserName}} 播放量:{{item.PlayCount}}</p>
+            
+            </div>
+            
           </Card>
         </Col>
       </Row>
@@ -22,7 +27,8 @@
 
 <script>
 import videoAxios from "@/axios";
-import env from "@/config/env"; videoAxios()
+import env from "@/config/env";
+ videoAxios()
 export default {
   name: "VideoList",
   data() {
@@ -41,30 +47,53 @@ export default {
     this.getVideo();
   },
   methods:{
-    getImage(videoId){
-      return env.target + "/videoServer/video/getImage?imageId=2&videoId=" + videoId;
-    },
-    getVideo(){
-      this.axios.get("/videoServer/video/getVideoPage" , {
-        params: {
-          pageNumber: this.pageNumber,
-          searchName: this.searchName
+    async getUser(userId){
+      let name = ""
+
+      await this.axios.get("/videoserver/user/UserInfo", {
+        params:{
+          userId: 1
         }
       }).then(res => {
-        this.videoList = res.data.data;
+        name = res.data.name
+        console.log(name)
+      })
+      return Promise.resolve(name)
+    },
+    getUserName(userId) {
+      this.getUser(userId).then(name => {
+        return name
       })
     },
-    getTotal(){
-      this.axios.get("/videoServer/video/getVideoTotal", {
-        params:{
-          searchName: this.searchName
+    getImage(videoId, imageStatus){
+      if(imageStatus == 1) {
+        return env.target + "/videoserver/video/getImage?imageId=0&videoId=" + videoId;
+      } 
+      return env.target + "/videoserver/video/getImage?imageId=2&videoId=" + videoId;
+    },
+    getVideo(){
+      this.axios.get("/videoserver/video/getVideoPage" , {
+        params: {
+          number: this.pageNumber,
+          keyword: this.searchName,
+          size: this.pageSize
         }
       }).then(res => {
-        this.pageTotal = res.data.data;
+        this.videoList = res.data.videos;
+      }).catch(err =>{
+        this.$Message.error("获取视频列表错误!");
+      } )
+    },
+    getTotal(){
+      this.axios.get("/videoserver/video/getVideoTotal", {
+        params:{
+          keyword: this.searchName
+        }
+      }).then(res => {
+        this.pageTotal = res.data.count;
       })
     },
     searchVideos(){
-      console.log("searchName:", this.searchName);
       this.getTotal();
       this.getVideo();
     },
@@ -92,5 +121,13 @@ export default {
 }
 .video-page {
   margin-top: 50px;
+}
+.title {
+  font-size: 20px;
+  color: black;
+}
+.up {
+  font-size: 12px;
+  color: gray
 }
 </style>
