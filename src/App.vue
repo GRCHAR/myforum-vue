@@ -10,20 +10,28 @@
               <span>论坛</span>
             </MenuItem>
             <MenuItem name="1-4" to="/upload">
-              <Icon type="settings"></Icon>
+              <Icon type="md-cloud-upload"></Icon>
               <span>上传视频</span>
             </MenuItem>
             <MenuItem name="1-5" to="/videoList">
-              <Icon type="settings"></Icon>
+              <Icon type="md-film"></Icon>
               <span>视频列表</span>
             </MenuItem>
             <MenuItem name="1-6" to="/video">
-              <Icon type="settings"></Icon>
+              <Icon type="ios-navigate"></Icon>
               <span>直播</span>
             </MenuItem>
             <MenuItem name="1-7" to="/video">
-              <Icon type="settings"></Icon>
+              <Icon type="md-game-controller-b"></Icon>
               <span>直播列表</span>
+            </MenuItem>
+            <MenuItem name="1-8" to="/bt">
+              <Icon type="md-bug"></Icon>
+              <span>bt资源</span>
+            </MenuItem>
+            <MenuItem name="1-9" to="/webrtc">
+              <Icon type="md-chatboxes"></Icon>
+              <span>直播聊天</span>
             </MenuItem>
           </Menu>
         </Sider>

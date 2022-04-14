@@ -28,8 +28,23 @@
     
     <!-- <Progress :percent="this.videoFile.percentage" hide-info></Progress> -->
     <Button @click="uploadImg">上传</Button>
+     <el-upload
+  class="upload-demo"
+  ref="upload"
+  action="https://jsonplaceholder.typicode.com/posts/"
+  :on-preview="handlePreview"
+  :on-remove="handleRemove"
+  :file-list="fileList"
+  :auto-upload="false">
+  <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+  <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+  <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+</el-upload>
 
   </div>
+
+
+ 
 
 
 </template>
@@ -55,7 +70,8 @@ export default {
       imageUploaded: false,
       videoUploaded: false,
       loadingStatus: false,
-      videoId:''
+      videoId:'',
+      fileList:[]
     }
   },
   mounted() {
@@ -93,7 +109,8 @@ export default {
       return false;
     },
     uploadImg(){
-      var forms = new FormData()
+      if(this.videoId != '') {
+        var forms = new FormData()
       forms.append('file', this.imageFile)
       this.axios.post(
          "/videoserver/video/uploadImage?videoId=" + this.videoId + "&Authorization=" + this.token, 
@@ -104,8 +121,12 @@ export default {
           this.$Message.success("上传成功")
         }
       }).catch((err) => {
-        this.$Message.success("上传失败")
+        this.$Message.error("上传失败")
       });
+      } else {
+        this.$Message.error("视频未上传完成")
+      }
+      
     },
     uploadVideo(){
       var forms = new FormData()
@@ -120,12 +141,22 @@ export default {
           this.$Message.success("上传成功")
         }
       }).catch((err) => {
-        this.$Message.success("上传失败")
+        this.$Message.error("上传失败")
       });
     },
     handlerProgress(event, file, fileList){
       console.log(fileList)
-    }
+    },
+    submitUpload() {
+        this.$refs.upload.submit();
+      },
+      handleRemove(file, fileList) {
+        console.log(file, fileList);
+      },
+      handlePreview(file) {
+        console.log(file);
+      }
+    
   },
   watch:{
     "title":function (newv, oldv){

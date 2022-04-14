@@ -14,6 +14,7 @@ import VideoUpload from "@/views/VideoUpload";
 import VideoList from "@/views/VideoList";
 import CreateLive from "@/views/CreateLive";
 import LiveList from "@/views/LiveList";
+import bt from "@/views/BT"
 
 
 import ViewUI from 'view-design';
@@ -106,6 +107,11 @@ const routes = [
     path: '/edit',
     name: 'edit',
     component: edit
+  },
+  {
+    path: '/bt',
+    name: 'BT',
+    component: bt
   }
 ]
 

@@ -6,15 +6,21 @@
       </Row>
     </div>
     <br>
-    <div v-for="rowCount in 4" :key=rowCount>
+    <div>
+      <Tabs  @on-click="changeType">
+        <TabPane label="动画" name="1" @on-click="changeType"></TabPane>
+        <TabPane label="游戏" name="2" @on-click="changeType"></TabPane>
+        <TabPane label="资源" name="3" @on-click="changeType"></TabPane>
+      </Tabs>
+    </div>
+    <div  v-for="rowCount in 4" :key=rowCount>
       <Row>
         <Col class="video_row" span="5" offset="1" v-for="(item, key) in videoList.slice(((rowCount - 1) * 4), (rowCount)*4)" :key=key>
-          <Card v-if="item != null" replace :to="{ name: 'Video', query: { videoId: item.Id}}" append>
+          <Card v-if="item != null" @click.native="toVideo(item.Id)" append>
             <img :src="getImage(item.Id,item.Image)" width="200px" height="150px"/>
             <div class="title">{{item.Title}}</div>
             <div class="up">
               <p>up:{{item.UserName}} 播放量:{{item.PlayCount}}</p>
-            
             </div>
             
           </Card>
@@ -37,7 +43,8 @@ export default {
       pageNumber: 1,
       pageSize: 12,
       pageTotal: 4,
-      searchName: ''
+      searchName: '',
+      type:0
     }
   },
   created() {
@@ -47,6 +54,15 @@ export default {
     this.getVideo();
   },
   methods:{
+    changeType(name){
+      console.log("change type", name)
+      this.type = name
+      // return this.type
+    },
+    toVideo(videoId){
+      console.log("sadf")
+      this.$router.push({name:'Video', query:{videoId:videoId}})
+    },
     async getUser(userId){
       let name = ""
 
@@ -76,7 +92,8 @@ export default {
         params: {
           number: this.pageNumber,
           keyword: this.searchName,
-          size: this.pageSize
+          size: this.pageSize,
+          type: this.type
         }
       }).then(res => {
         this.videoList = res.data.videos;
@@ -87,7 +104,8 @@ export default {
     getTotal(){
       this.axios.get("/videoserver/video/getVideoTotal", {
         params:{
-          keyword: this.searchName
+          keyword: this.searchName,
+          type: this.type
         }
       }).then(res => {
         this.pageTotal = res.data.count;
@@ -103,8 +121,12 @@ export default {
     }
   },
   watch:{
-     pageNumber(){
-       this.getVideo();
+    pageNumber(){
+      this.getVideo();
+    },
+    type(){
+      this.getTotal()
+      this.getVideo();
     }
   }
 

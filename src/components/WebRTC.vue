@@ -1,6 +1,26 @@
 <template>
   <div id="videoContainer">
-    <video id="webcam"></video>
+    <div class="liveBox">
+       <video id="webcam"></video>
+    </div>
+   
+    <div class="messageBox">
+      <Card class="messageCard">
+      <div v-for="item in messageList" :key="item.user" style="height:20px">
+        {{item.user}}:{{item.message}}
+      </div>
+    </Card>
+    </div>
+    <div>
+      <div class="messageInput">
+       <Input v-model="inputMessage" type="textarea" :rows="4" placeholder="Enter something..." />
+    </div>
+    <div class="messageButton">
+      <Button style="height:95px" @click="sendMessage()">发送</Button>
+    </div>
+    </div>
+    
+   
   </div>
 </template>
 
@@ -9,15 +29,20 @@
 
 import async from "async";
 import * as json from "core-js";
+import iframe from '../views/iframe.vue';
 
 export default {
+  components: { iframe },
   name: "WebRTC",
   data() {
     return {
+      messageList:[],
+      inputMessage: '',
+      roomId:'test1',
       ws: null,
       countNumber: 0,
       _localStream:null,
-      socketUserId:null,
+      socketUserId: null,
       RTCConnect: null,
       RTCConnectList: new Map(),
       ice: {
@@ -33,6 +58,18 @@ export default {
   },
 
   methods: {
+    scrolltobottom(){
+      chatbox.scrollTop=chatbox.scrollHeight;
+    },
+    sendMessage(){
+      this.ws.send(JSON.stringify({
+        event: "_message",
+        userId: this.socketUserId,
+        message: this.inputMessage,
+        roomId: this.roomId
+      }))
+      this.inputMessage = ""
+    },
 
     randomString(len) {
       len = len || 32;
@@ -84,20 +121,35 @@ export default {
   },
   mounted() {
     let vm = this;
+    // vm.socketUserId = this.$store.getters.getUserId
     vm.socketUserId = vm.randomString(10);
-    vm.ws = new WebSocket('ws://localhost:8070/webSocket/' + vm.socketUserId);
+    vm.ws = new WebSocket('ws://localhost:8075/ws');
 
     vm.ws.onopen = function (event) {
       console.log(event);
       var hello = {
-        toUserId: vm.socketUserId,
+        event: "open",
+        userId: vm.socketUserId,
+        roomId: vm.roomId,
         message: "hello"
       }
       vm.ws.send(JSON.stringify(hello));
     }
+
     vm.ws.onclose = function (event) {
+      var goodBye = {
+        event: "close",
+        userId: vm.socketUserId,
+        roomId: vm.roomId,
+        message: "goodBye"
+      }
+      vm.ws.send(JSON.stringify(goodBye))
       console.log("close");
     }
+
+    vm.ws.onerror = error => {
+      console.log("Socket Error: ", error);
+    };
     // vm.RTCConnect = new webkitRTCPeerConnection(vm.ice);
 
     if (RTCPeerConnection) (function () {
@@ -205,6 +257,15 @@ export default {
       }
 
       console.log("json:" + JSON.stringify(json));
+      if(json.event === "_message") {
+        console.log("JSON USERID",json.userId)
+        vm.messageList.push(
+          {
+            user: json.userId,
+            message:json.message
+          }
+        )
+      }
       //如果是一个ICE的候选，则将其加入到PeerConnection中，否则设定对方的session描述为传递过来的描述
       if( json.event === "_ice_candidate" ){
         console.log("_ice_candidate");
@@ -329,65 +390,19 @@ export default {
       }
     };
 
-    // vm.RTCConnect.setRemoteDescription(new RTCSessionDescription(json.data.sdp));
-    //
-    // vm.RTCConnect.createAnswer(function(desc){
-    //   console.log("创建answer成功");
-    //   // 将创建好的answer设置为本地offer
-    //   vm.RTCConnect.setLocalDescription(desc);
-    //   // 通过socket发送answer
-    // }, function(error){
-    //   // 创建answer失败
-    //   console.log("创建answer失败");
-    // })
-
-    // vm.RTCConnect.addIceCandidate(new RTCIceCandidate(json.data.candidate));
-    //
-    // vm.RTCConnect.onaddstream = function(event){
-    //   console.log("检测到媒体流连接到本地");
-    //   // 绑定远程媒体流到video标签用于输出
-    //   document.getElementById('remoteVideo').src = URL.createObjectURL(event.stream);
-    // };
-
+    
+//获取摄像头视频流!!!!!!!
     navigator.mediaDevices.getUserMedia({
       video: true,
-      audio: true
+      audio: false
     }).then(mediaStream => {
-      // vm._localStream = mediaStream;
       console.log("mediaStream:" + mediaStream);
       var video1 = document.querySelector("#webcam");
       console.log("video1:" + video1);
-      video1.width = 200;
-      video1.height = 200;
       video1.srcObject =  mediaStream;
       video1.play();
 
-      // mediaStream.getTracks().forEach(track => {
-      //   console.log(track);
-      //   vm.RTCConnectList.forEach(value => )
-      //   vm.RTCConnect.addTrack(track, mediaStream);
-      // })
-      // // vm.RTCConnect.addTrack(mediaStream.getVideoTracks()[0], mediaStream);
-      // vm.RTCConnect.createOffer(function(desc){
-      //   vm.sendOfferFn(desc);
-      //   console.log("创建offer成功");
-      //   // 将创建好的offer设置为本地offer
-      //
-      //   // 通过socket发送offer
-      // }, function(error){
-      //   // 创建offer失败
-      //   console.log("创建offer失败");
-      // })
-      // vm.RTCConnect.onicecandidate = function (event){
-      //   if (event.candidate !== null) {
-      //     vm.ws.send(JSON.stringify({
-      //       "event": "_ice_candidate",
-      //       "data": {
-      //         "candidate": event.candidate
-      //       }
-      //     }));
-      //   }
-      // }
+      
     });
 
 
@@ -405,94 +420,55 @@ export default {
 
 
 
-    this.$nextTick(constraints => {
-
-
-
-
-
-
-          // navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-          // var constraints = {audio: false, video: true};
-          // var video = document.querySelector("video");
-          // navigator.getUserMedia(constraints, this.successCallback, this.errorCallback);
-        })
-
-    // vm._localStream.getTracks().forEach(track => {
-    //   vm.RTCConnect.addTrack(track);
-    // })
-    // vm.RTCConnect.createOffer();
-
-
-
-    // 只获取video:
+    
 
 
   },
   watch:{
-    // RTCConnectList:{
-    //   handler(val, oldVal){
-    //     let vm = this;
-    //     vm._localStream.getTracks().forEach(track => {
-    //       console.log(track);
-    //       val.forEach((value, key) => {
-    //         value.addTrack(track, vm._localStream);
-    //         value.createOffer(function(desc){
-    //           // 设置本地Offer
-    //
-    //           value.setLocalDescription(desc);
-    //           // 发送offer
-    //           this.ws.send(JSON.stringify({
-    //             "event": "_offer",
-    //             "data": {
-    //               "sdp": desc
-    //             }
-    //           }));
-    //           console.log("创建offer成功");
-    //         }, function(error){
-    //           // 创建offer失败
-    //           console.log("创建offer失败");
-    //         });
-    //         value.onicecandidate = function (event){
-    //           if (event.candidate !== null) {
-    //             vm.ws.send(JSON.stringify({
-    //               "event": "_ice_candidate",
-    //               "data": {
-    //                 "candidate": event.candidate
-    //               }
-    //             }));
-    //           }
-    //         }
-    //       })
-    //     })
-    //     // vm.RTCConnect.addTrack(mediaStream.getVideoTracks()[0], mediaStream);
-    //     // vm.RTCConnect.createOffer(function(desc){
-    //     //   vm.sendOfferFn(desc);
-    //     //   console.log("创建offer成功");
-    //     //   // 将创建好的offer设置为本地offer
-    //     //
-    //     //   // 通过socket发送offer
-    //     // }, function(error){
-    //     //   // 创建offer失败
-    //     //   console.log("创建offer失败");
-    //     // })
-    //     // vm.RTCConnect.onicecandidate = function (event){
-    //     //   if (event.candidate !== null) {
-    //     //     vm.ws.send(JSON.stringify({
-    //     //       "event": "_ice_candidate",
-    //     //       "data": {
-    //     //         "candidate": event.candidate
-    //     //       }
-    //     //     }));
-    //     //   }
-    //     // }
-    //   },
-    //   deep:true
-    // }
+    
   }
 }
 </script>
 
 <style scoped>
+.liveBox{
+  display: inline-block;
+  width: 500px;
+  height: 500px;
+  left:200px;
+}
+.messageBox {
+  display: inline-block;
+  margin-left: 200px;
+}
+
+.messageCard {
+  /* display: inline-block; */
+  overflow-y:scroll;
+  max-height: 500px;
+  word-wrap: break-word;
+  line-height: 1.6rem;
+  
+  /* padding: 8px 16px; */
+  /* box-shadow: 0 0 32px rgba(0 0 0 / 8%),0 16px 16px -16px rgb(0 0 0 / 10%); */
+  text-align: left;
+  width: 200px;
+  height:480px;
+  
+  /* width: 100px;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical; */
+}
+
+.messageInput {
+  display: inline-block;
+  width: 50%;
+}
+
+.messageButton{
+  display: inline-block;
+}
 
 </style>

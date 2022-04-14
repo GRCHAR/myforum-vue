@@ -22,6 +22,25 @@
   <div class="commentButton">
     <Button size="large">发表评论</Button>
   </div>
+  <div>
+    <List item-layout="vertical">
+        <ListItem v-for="item in data" :key="item.title">
+            <ListItemMeta :avatar="item.avatar" :title="item.title" :description="item.description" />
+            {{ item.content }}
+            <template slot="action">
+                <li>
+                    <Icon type="ios-star-outline" /> 123
+                </li>
+                <li>
+                    <Icon type="ios-thumbs-up-outline" /> 234
+                </li>
+                <li>
+                    <Icon type="ios-chatbubbles-outline" /> 345
+                </li>
+            </template>
+        </ListItem>
+    </List>
+  </div>
 </div>
   
 </template>
@@ -38,6 +57,14 @@ export default {
     return {
       title: "",
       userName: this.$route.params.userNmae,
+      data:[
+        {
+          title:"",
+          description:"",
+          avatar:"",
+          content:""
+        }
+      ]
     }
   },
   
