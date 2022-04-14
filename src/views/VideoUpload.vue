@@ -1,16 +1,31 @@
 <template>
   <div>
     <div class="input-table">
-      <Input v-model="title" placeholder="Enter something..." clearable style="width: 200px" />
+      标题:<Input v-model="title" placeholder="Enter something..." clearable style="width: 200px" />
     </div>
-     <Upload 
+    <div class="upload-image">
+      <Upload 
         :before-upload="handleImageUpload" v-if="!this.imageUploaded">
-        <Button icon="ios-cloud-upload-outline">选择图片</Button>
+        封面:<Button icon="ios-cloud-upload-outline">选择图片</Button>
     </Upload>
     <img v-else :src="this.imageFilePath" width="300px">
-    <Upload :action="this.action">
-        <Button icon="ios-cloud-upload-outline">选择视频</Button>
-    </Upload>
+    </div>
+    <div>
+      <Upload :action="this.action">
+        视频:<Button icon="ios-cloud-upload-outline">选择视频</Button>
+      </Upload>
+    </div>
+    <div>
+      分类:
+    </div>
+    <div>
+      标签:
+    </div>
+    <div>
+      简介:
+    </div>
+    
+    
     <!-- <Progress :percent="this.videoFile.percentage" hide-info></Progress> -->
     <Button @click="uploadImg">上传</Button>
 
@@ -39,7 +54,8 @@ export default {
       videoFile: null,
       imageUploaded: false,
       videoUploaded: false,
-      loadingStatus: false
+      loadingStatus: false,
+      videoId:''
     }
   },
   mounted() {
@@ -80,7 +96,7 @@ export default {
       var forms = new FormData()
       forms.append('file', this.imageFile)
       this.axios.post(
-         "/videoserver/video/uploadImage?userId=" + this.userId + "&Authorization=" + this.token, 
+         "/videoserver/video/uploadImage?videoId=" + this.videoId + "&Authorization=" + this.token, 
         forms,
         {headers:{'Content-Type':'multipart/form-data'}}
       ).then((result) => {
@@ -100,6 +116,7 @@ export default {
         {headers:{'Content-Type':'multipart/form-data'}}
       ).then((result) => {
         if(result.data.code == 0) {
+          this.videoId = result.data.videoId
           this.$Message.success("上传成功")
         }
       }).catch((err) => {
@@ -125,5 +142,8 @@ export default {
 }
 .upload-video {
   margin-top: 50px;
+}
+.upload-image {
+  margin-top: 30px;
 }
 </style>

@@ -4,9 +4,21 @@
     {{this.title}}
   </div>
   <video id="videoPlayer" controls auto></video>
+  <div class="slider">
+    <Slider v-model="value1"></Slider>
+  </div>
+  <div class="content">
+    <Collapse simple>
+        <Panel name="1">
+            史蒂夫·乔布斯
+            <p slot="content">史蒂夫·乔布斯（Steve Jobs），1955年2月24日生于美国加利福尼亚州旧金山，美国发明家、企业家、美国苹果公司联合创办人。</p>
+        </Panel>
+    </Collapse>
+  </div>
   <div class="conmmentInput">
     <Input v-model="value8" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter something..." />
   </div>
+  
   <div class="commentButton">
     <Button size="large">发表评论</Button>
   </div>
@@ -65,6 +77,7 @@ video {
 }
 .conmmentInput{
   width: 80%;
+  margin-top: 50px;
   /* margin-left: 10%; */
   display:inline-block;
 }
@@ -72,6 +85,14 @@ video {
   display:inline-block;
   margin-left: 5px;
   /* height: 50px; */
+}
+
+.slider {
+  width: 640px;
+}
+
+.content {
+  width: 640px;
 }
 
 </style>

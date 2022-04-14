@@ -10,7 +10,7 @@
       <Row>
         <Col class="video_row" span="5" offset="1" v-for="(item, key) in videoList.slice(((rowCount - 1) * 4), (rowCount)*4)" :key=key>
           <Card v-if="item != null" replace :to="{ name: 'Video', query: { videoId: item.Id}}" append>
-            <img :src="getImage(item.Id)" width="90%" height="70%" />
+            <img :src="getImage(item.Id,item.Image)" width="200px" height="150px"/>
             <div class="title">{{item.Title}}</div>
             <div class="up">
               <p>up:{{item.UserName}} 播放量:{{item.PlayCount}}</p>
